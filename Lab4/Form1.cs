@@ -21,10 +21,10 @@ namespace Lab4
             public Type type;
         }
         selected_gun_struct selected_gun; 
-        List<Gun> guns = new List<Gun>();
+        List<dynamic> guns = new List<dynamic>();
         List<Type> gun_types = new List<Type>();
-        List<Gun> serialization_list = new List<Gun>();
-        IEnumerable<Type> subclasses;
+        List<dynamic> serialization_list = new List<dynamic>();
+        List<Type> subclasses = new List<Type>();
         int offset = 20;
         const int margin = 40;
         public Form1()
@@ -35,10 +35,17 @@ namespace Lab4
                 e.Value = ((TypeInfo)e.Value).type.Name;
             };
             comboBox2.DisplayMember = "Name";
-            subclasses = Assembly
-           .GetAssembly(typeof(Gun))
-           .GetTypes()
-           .Where(t => t.IsSubclassOf(typeof(Gun)));
+            Assembly a = AppDomain.CurrentDomain.GetAssemblies().SingleOrDefault(assembly => assembly.GetName().Name == "Lab4");
+            foreach (Type type in a.GetTypes())
+            {
+                if(type.IsSubclassOf(typeof(Gun)))
+                {
+                    subclasses.Add(type);
+                }
+            }
+            Assembly asm = Assembly.LoadFrom("Nade.dll");
+            Type[] TGuns = asm.GetTypes();
+            subclasses.AddRange(TGuns);
             FillTypeComboBox();
         }
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -65,7 +72,7 @@ namespace Lab4
                 input.Add(Convert.ChangeType(textBoxes[i].Text, selected_type.parameters[i].ParameterType));
             }
             object[] args = input.ToArray();
-            Gun new_gun = (Gun)Activator.CreateInstance(selected_type.type, args);
+            dynamic new_gun = Activator.CreateInstance(selected_type.type, args);
             guns.Add(new_gun);
             UpdateGunList();
             foreach (Control obj in panel1.Controls)
@@ -122,8 +129,8 @@ namespace Lab4
         {
             BinaryFormatter formatter = new BinaryFormatter();
             FileStream fs = new FileStream("Guns.dat", FileMode.Open);
-            Gun[] loaded_guns = (Gun[])formatter.Deserialize(fs);
-            foreach (Gun loaded_gun in loaded_guns)
+            dynamic[] loaded_guns = (dynamic[])formatter.Deserialize(fs);
+            foreach (dynamic loaded_gun in loaded_guns)
             {
                 guns.Add(loaded_gun);
             }
@@ -132,7 +139,7 @@ namespace Lab4
         }
         public void UpdateInfo()
         {
-            selected_gun.type = Type.GetType(comboBox2.SelectedItem.ToString());
+            selected_gun.type = Type.GetType(comboBox2.SelectedItem.GetType().AssemblyQualifiedName);
             selected_gun.obj = Convert.ChangeType(comboBox2.SelectedItem, selected_gun.type); ;
             panel2.Controls.Clear();
             offset = 20;
@@ -145,7 +152,7 @@ namespace Lab4
         public void UpdateGunList()
         {
             comboBox2.Items.Clear();
-            foreach (Gun gun in guns)
+            foreach (dynamic gun in guns)
             {
                 comboBox2.Items.Add(gun);
             }
@@ -165,6 +172,7 @@ namespace Lab4
             txt.Height = 15;
             txt.Width = 150;
             txt.Top = offset;
+            txt.Text = "1";
             parent.Controls.Add(txt);
 
             Label lbl = new Label();
