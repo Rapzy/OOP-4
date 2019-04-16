@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
+using System.Net.Http;
 
 namespace Lab4
 {
@@ -29,11 +30,9 @@ namespace Lab4
         const int margin = 40;
         public Form1()
         {
+            Console.WriteLine(GunType.TypeList);
             selected_gun = new selected_gun_struct();
             InitializeComponent();
-            comboBox1.Format += (s, e) => {
-                e.Value = ((TypeInfo)e.Value).type.Name;
-            };
             comboBox2.DisplayMember = "Name";
             Assembly a = AppDomain.CurrentDomain.GetAssemblies().SingleOrDefault(assembly => assembly.GetName().Name == "Lab4");
             foreach (Type type in a.GetTypes())
@@ -43,18 +42,26 @@ namespace Lab4
                     subclasses.Add(type);
                 }
             }
-            Assembly asm = Assembly.LoadFrom("Nade.dll");
-            Type[] TGuns = asm.GetTypes();
-            subclasses.AddRange(TGuns);
+            //Assembly asm = Assembly.LoadFrom("Nade.dll");
+            //Type[] TGuns = asm.GetTypes();
+            //subclasses.AddRange(TGuns);
             FillTypeComboBox();
         }
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             panel1.Controls.Clear();
             offset = 20;
-            foreach (ParameterInfo parameter in (comboBox1.SelectedItem as TypeInfo).parameters)
+            if (comboBox1.SelectedItem is GunType) {
+                string selectedItem = (comboBox1.SelectedItem as GunType).Type;
+                PropertyInfo[] properties = Type.GetType("Lab4."+selectedItem).GetProperties();
+                foreach (PropertyInfo property in properties)
+                {
+                    AddField(property, panel1, 1);
+                }
+            }
+            else
             {
-                AddField(parameter, panel1, 1);                                
+                return;
             }
         }
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
@@ -164,7 +171,7 @@ namespace Lab4
             public ParameterInfo[] parameters;
             public TypeInfo() { }
         }
-        public void AddField(ParameterInfo parameter, Panel parent, int id)
+        public void AddField(PropertyInfo parameter, Panel parent, int id)
         {
             string name = TransformPropName(parameter.Name);
             TextBox txt = new TextBox();
@@ -209,7 +216,11 @@ namespace Lab4
         }
         public void FillTypeComboBox()
         {
-            foreach (Type type in subclasses)
+            foreach(GunType gunType in GunType.TypeList)
+            {
+                comboBox1.Items.Add(gunType);
+            }
+            /*foreach (Type type in subclasses)
             {
                 if (!type.IsAbstract && type.IsSerializable)
                 {
@@ -227,7 +238,7 @@ namespace Lab4
                     }
                     comboBox1.Items.Add(new_type);
                 }
-            }
+            }*/
             comboBox1.SelectedIndex = 0;
         }
     }

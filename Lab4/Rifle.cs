@@ -6,14 +6,13 @@ using System.Threading.Tasks;
 
 namespace Lab4
 {
-    [Serializable]
-    public class Rifle:Firearm
+    public class Rifle:Gun
     {
-        public int fire_rate { get; set; }
-        public Rifle(string name, int clip_size, int fire_rate) : base(name, clip_size)
+        public static List<Rifle> RifleList = new List<Rifle>();
+        public static Rifle AK47 = new Rifle("AK-47", 2700, 100);
+        public Rifle(string name, int price, int damage):base(name, GunType.Rifle, price, damage)
         {
-            type = "Rifle ";
-            this.fire_rate = fire_rate;
+            RifleList.Add(this);
         }
     }
 }
