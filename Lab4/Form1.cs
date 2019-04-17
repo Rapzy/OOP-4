@@ -33,6 +33,7 @@ namespace Lab4
             Console.WriteLine(GunType.TypeList);
             selected_gun = new selected_gun_struct();
             InitializeComponent();
+            comboBox1.DisplayMember = "Type";
             comboBox2.DisplayMember = "Name";
             Assembly a = AppDomain.CurrentDomain.GetAssemblies().SingleOrDefault(assembly => assembly.GetName().Name == "Lab4");
             foreach (Type type in a.GetTypes())
@@ -53,11 +54,16 @@ namespace Lab4
             offset = 20;
             if (comboBox1.SelectedItem is GunType) {
                 string selectedItem = (comboBox1.SelectedItem as GunType).Type;
-                PropertyInfo[] properties = Type.GetType("Lab4."+selectedItem).GetProperties();
+                if (Type.GetType("Lab4." + selectedItem).GetNestedType("Stats") == null)
+                {
+                    //Type[] t = (Type.GetType("Lab4.Gun")).GetNestedType("Stats");
+                }
+                //Console.WriteLine(t[0].ToString());
+                /*PropertyInfo[] properties = null;//t.GetProperty("Stat");
                 foreach (PropertyInfo property in properties)
                 {
                     AddField(property, panel1, 1);
-                }
+                }*/
             }
             else
             {
@@ -179,7 +185,7 @@ namespace Lab4
             txt.Height = 15;
             txt.Width = 150;
             txt.Top = offset;
-            txt.Text = "1";
+            txt.Text = "";
             parent.Controls.Add(txt);
 
             Label lbl = new Label();

@@ -6,32 +6,45 @@ using System.Threading.Tasks;
 
 namespace Lab4
 {
-    [Serializable]
-    public abstract class Firearm : Gun
+    public abstract class FireArm:Gun
     {
-        public int clip_size { get; set; }
-        public int ammo { get; protected set; }
-        public Firearm(string name="", int clip_size=0)
+        public GunClip Clip;
+        public FireArm(string name, GunType gunType, int price, int damage, int clipSize, int fireRate) : base(name, gunType, price, damage)
         {
-            this.name = name;
-            this.clip_size = clip_size;
-            ammo = clip_size;
-            type = "Firearm";
+            Stat = new Stats(name, price, damage, fireRate, clipSize);
+            Clip = new GunClip(clipSize);
         }
-        public override void Shoot()
+        public new class Stats: Gun.Stats
         {
-            if (ammo > 0)
+            public int ClipSize { get; set; }
+            public int FireRate { get; set; }
+            public Stats(string name, int price, int damage, int fireRate, int clipSize):
+                base(name, price, damage)
             {
-                ammo -= 1;
+                FireRate = fireRate;
+                ClipSize = clipSize;
             }
         }
-        public void Reload()
+        public virtual void Shoot()
         {
-            ammo = clip_size;
+            if(Clip.Ammo > 0)
+            {
+                Clip.Ammo--;
+            }
         }
-        public override string GetFullType()
+        public virtual void Reload()
         {
-            return name + " is " + type + base.GetFullType();
+            Clip.Ammo = Clip.Size;
+        }
+        public class GunClip
+        {
+            public int Size { get; set; }
+            public int Ammo { get; set; }
+            public GunClip(int size)
+            {
+                Size = size;
+                Ammo = size;
+            }
         }
     }
 }
