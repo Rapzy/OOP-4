@@ -22,6 +22,7 @@ namespace Lab4
     }
     public class FireArmInfo : GunInfo
     {
+        public int Ammo { get; set; }
         public int ClipSize { get; set; }
         public int FireRate { get; set; }
         public FireArmInfo(string name, int price, int damage, int fireRate, int clipSize) :
@@ -29,6 +30,7 @@ namespace Lab4
         {
             FireRate = fireRate;
             ClipSize = clipSize;
+            Ammo = clipSize;
         }
         public FireArmInfo() { }
     }

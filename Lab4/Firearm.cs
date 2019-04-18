@@ -22,12 +22,14 @@ namespace Lab4
         {
             if(Clip.Ammo > 0)
             {
+                (Info as FireArmInfo).Ammo--;
                 Clip.Ammo--;
             }
         }
         public virtual void Reload()
         {
-            Clip.Ammo = Clip.Size;
+            (Info as FireArmInfo).Ammo = (Info as FireArmInfo).ClipSize;
+            Clip.Ammo = (Info as FireArmInfo).ClipSize;
         }
         public class GunClip
         {

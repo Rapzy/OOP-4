@@ -32,7 +32,10 @@ namespace Lab4
         {
             InitializeComponent();
             comboBox1.DisplayMember = "Type";
-            comboBox2.DisplayMember = "Name";
+            comboBox2.DisplayMember =  "Name";
+            comboBox2.Format += (s, e) => {
+                e.Value = ((Gun)e.Value).Info.Name;
+            };
             Assembly a = AppDomain.CurrentDomain.GetAssemblies().SingleOrDefault(assembly => assembly.GetName().Name == "Lab4");
             foreach (Type type in a.GetTypes())
             {
@@ -41,6 +44,11 @@ namespace Lab4
                     subclasses.Add(type);
                 }
             }
+            new Pistol("Pistol", 1, 1, 1, 1);
+            new Knife("Knife",1, 1);
+            new Rifle("Rifle", 1, 1, 1, 1);
+            UpdateGunList();
+            UpdateInfo();
             //Assembly asm = Assembly.LoadFrom("Nade.dll");
             //Type[] TGuns = asm.GetTypes();
             //subclasses.AddRange(TGuns);
@@ -100,7 +108,7 @@ namespace Lab4
 
         private void button2_Click(object sender, EventArgs e)
         {
-            if (selectedGun is FireArm)
+            if (selectedGun is FireArm && (selectedGun.Info as FireArmInfo).Ammo > 0)
             {
                 (selectedGun as FireArm).Shoot();
                 UpdateInfo();
@@ -117,10 +125,10 @@ namespace Lab4
         }
         private void button4_Click(object sender, EventArgs e)
         {
-            foreach(PropertyInfo property in selectedGun.GetType().GetProperties())
+            foreach(PropertyInfo property in selectedGun.Info.GetType().GetProperties())
             {
                 string txt = panel2.Controls[GetTextBoxName(TransformPropName(property.Name), 2)].Text;
-                property.SetValue(selectedGun, Convert.ChangeType(txt ,property.PropertyType));
+                property.SetValue(selectedGun.Info, Convert.ChangeType(txt ,property.PropertyType));
             }
             UpdateInfo();
             UpdateGunList();
@@ -158,10 +166,10 @@ namespace Lab4
             selectedGun = (comboBox2.SelectedItem as Gun);//Type.GetType(comboBox2.SelectedItem.GetType().AssemblyQualifiedName);
             panel2.Controls.Clear();
             offset = 20;
-            PropertyInfo[] properties = selectedGun.GetType().GetProperties();
+            PropertyInfo[] properties = selectedGun.Info.GetType().GetProperties();
             foreach (PropertyInfo property in properties)
             {
-                AddField(property, panel2, 2, property.GetValue(selectedGun).ToString());
+                AddField(property, panel2, 2, property.GetValue(selectedGun.Info).ToString());
             }
         }
         public void UpdateGunList()
