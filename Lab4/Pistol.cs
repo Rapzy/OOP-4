@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Lab4
 {
+    [Serializable]
     public class Pistol:FireArm
     {
         public Pistol(string name, int price, int damage, int clipSize, int fireRate)

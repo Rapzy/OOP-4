@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Lab4
 {
+    [Serializable]
     public class Knife:Gun
     {
         public Knife(string name, int price, int damage) : base(name, GunType.Knife, price, damage){}

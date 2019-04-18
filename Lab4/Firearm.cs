@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Lab4
 {
+    [Serializable]
     public abstract class FireArm:Gun
     {
         public GunClip Clip;
@@ -31,6 +32,7 @@ namespace Lab4
             (Info as FireArmInfo).Ammo = (Info as FireArmInfo).ClipSize;
             Clip.Ammo = (Info as FireArmInfo).ClipSize;
         }
+        [Serializable]
         public class GunClip
         {
             public int Size { get; set; }

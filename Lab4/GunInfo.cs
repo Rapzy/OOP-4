@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Lab4
 {
+    [Serializable]
     public class GunInfo
     {
         public string Name { get; set; }
@@ -20,6 +21,7 @@ namespace Lab4
         public GunInfo() { }
 
     }
+    [Serializable]
     public class FireArmInfo : GunInfo
     {
         public int Ammo { get; set; }

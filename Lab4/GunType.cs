@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Lab4
 {
+    [Serializable]
     public class GunType : IEquatable<GunType>
     {
         public static List<GunType> TypeList = new List<GunType>();

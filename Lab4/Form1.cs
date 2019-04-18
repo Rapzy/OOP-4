@@ -22,9 +22,7 @@ namespace Lab4
             public static PropertyInfo[] Properties;
         }
         Gun selectedGun;
-        List<dynamic> guns = new List<dynamic>();
-        List<Type> gun_types = new List<Type>();
-        List<dynamic> serialization_list = new List<dynamic>();
+        List<Gun> serialization_list = new List<Gun>();
         List<Type> subclasses = new List<Type>();
         int offset = 20;
         const int margin = 40;
@@ -44,11 +42,6 @@ namespace Lab4
                     subclasses.Add(type);
                 }
             }
-            new Pistol("Pistol", 1, 1, 1, 1);
-            new Knife("Knife",1, 1);
-            new Rifle("Rifle", 1, 1, 1, 1);
-            UpdateGunList();
-            UpdateInfo();
             //Assembly asm = Assembly.LoadFrom("Nade.dll");
             //Type[] TGuns = asm.GetTypes();
             //subclasses.AddRange(TGuns);
@@ -139,7 +132,7 @@ namespace Lab4
             if (idx == -1) //check if object already in @serialization_list
             {
                 serialization_list.Add(selectedGun);
-                textBox1.Text += selectedGun.GetType().GetProperty("name").GetValue(selectedGun) + Environment.NewLine;
+                textBox1.Text += selectedGun.Info.GetType().GetProperty("Name").GetValue(selectedGun.Info) + Environment.NewLine;
             }
         }
         private void button6_Click(object sender, EventArgs e)
@@ -154,9 +147,9 @@ namespace Lab4
             BinaryFormatter formatter = new BinaryFormatter();
             FileStream fs = new FileStream("Guns.dat", FileMode.Open);
             Gun[] loaded_guns = (Gun[])formatter.Deserialize(fs);
-            foreach (dynamic loaded_gun in loaded_guns)
+            foreach (Gun loaded_gun in loaded_guns)
             {
-                guns.Add(loaded_gun);
+                Gun.GunList.Add(loaded_gun);
             }
             UpdateGunList();
             fs.Close();
