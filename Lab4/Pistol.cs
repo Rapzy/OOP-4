@@ -10,5 +10,6 @@ namespace Lab4
     {
         public Pistol(string name, int price, int damage, int clipSize, int fireRate)
             : base(name, GunType.Pistol, price, damage, clipSize, fireRate) { }
+        public Pistol() { }
     }
 }

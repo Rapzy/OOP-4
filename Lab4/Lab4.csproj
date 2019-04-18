@@ -54,7 +54,7 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Gun.cs" />
-    <Compile Include="GunStats.cs" />
+    <Compile Include="GunInfo.cs" />
     <Compile Include="GunType.cs" />
     <Compile Include="Knife.cs" />
     <Compile Include="Pistol.cs" />

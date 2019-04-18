@@ -11,19 +11,12 @@ namespace Lab4
         public GunClip Clip;
         public FireArm(string name, GunType gunType, int price, int damage, int clipSize, int fireRate) : base(name, gunType, price, damage)
         {
-            Stat = new Stats(name, price, damage, fireRate, clipSize);
+            Info = new FireArmInfo(name, price, damage, fireRate, clipSize);
             Clip = new GunClip(clipSize);
         }
-        public new class Stats: Gun.Stats
+        public FireArm()
         {
-            public int ClipSize { get; set; }
-            public int FireRate { get; set; }
-            public Stats(string name, int price, int damage, int fireRate, int clipSize):
-                base(name, price, damage)
-            {
-                FireRate = fireRate;
-                ClipSize = clipSize;
-            }
+            Info = new FireArmInfo();
         }
         public virtual void Shoot()
         {

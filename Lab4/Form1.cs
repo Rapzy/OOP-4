@@ -16,12 +16,12 @@ namespace Lab4
 {
     public partial class Form1 : Form
     {
-        struct selected_gun_struct
+        public static class SelectedType
         {
-            public dynamic obj;
-            public Type type;
+            public static GunType Type;
+            public static PropertyInfo[] Properties;
         }
-        selected_gun_struct selected_gun; 
+        Gun selectedGun;
         List<dynamic> guns = new List<dynamic>();
         List<Type> gun_types = new List<Type>();
         List<dynamic> serialization_list = new List<dynamic>();
@@ -30,8 +30,6 @@ namespace Lab4
         const int margin = 40;
         public Form1()
         {
-            Console.WriteLine(GunType.TypeList);
-            selected_gun = new selected_gun_struct();
             InitializeComponent();
             comboBox1.DisplayMember = "Type";
             comboBox2.DisplayMember = "Name";
@@ -53,17 +51,17 @@ namespace Lab4
             panel1.Controls.Clear();
             offset = 20;
             if (comboBox1.SelectedItem is GunType) {
-                string selectedItem = (comboBox1.SelectedItem as GunType).Type;
-                if (Type.GetType("Lab4." + selectedItem).GetNestedType("Stats") == null)
-                {
-                    //Type[] t = (Type.GetType("Lab4.Gun")).GetNestedType("Stats");
+                SelectedType.Type = (comboBox1.SelectedItem as GunType);
+                Type tempType = Type.GetType("Lab4." + SelectedType.Type.Type);
+                Gun tempGun = (Gun)Activator.CreateInstance(tempType);
+                SelectedType.Properties = tempGun.Info.GetType().GetProperties();                
+                if (SelectedType.Properties != null)
+                {   
+                    foreach (PropertyInfo property in SelectedType.Properties)
+                    {
+                        AddField(property, panel1, 1);
+                    }
                 }
-                //Console.WriteLine(t[0].ToString());
-                /*PropertyInfo[] properties = null;//t.GetProperty("Stat");
-                foreach (PropertyInfo property in properties)
-                {
-                    AddField(property, panel1, 1);
-                }*/
             }
             else
             {
@@ -77,58 +75,63 @@ namespace Lab4
 
         private void button1_Click(object sender, EventArgs e)
         {
-            TypeInfo selected_type = (comboBox1.SelectedItem as TypeInfo);
             List<object> input = new List<object>();
             TextBox[] textBoxes = panel1.Controls.OfType<TextBox>().ToArray();
-            for (int i=0; i<selected_type.parameters.Count(); i++)
+            PropertyInfo[] properties = SelectedType.Properties;
+            if (properties != null)
             {
-                input.Add(Convert.ChangeType(textBoxes[i].Text, selected_type.parameters[i].ParameterType));
-            }
-            object[] args = input.ToArray();
-            dynamic new_gun = Activator.CreateInstance(selected_type.type, args);
-            guns.Add(new_gun);
-            UpdateGunList();
-            foreach (Control obj in panel1.Controls)
-            {
-                if (obj is TextBox)
+                for (int i = 0; i < properties.Count(); i++)
                 {
-                    obj.ResetText();
+                    input.Add(Convert.ChangeType(textBoxes[i].Text, properties[i].PropertyType));
                 }
+                object[] args = input.ToArray();
+                Gun new_gun = (Gun)Activator.CreateInstance(Type.GetType("Lab4."+SelectedType.Type.Type), args);
+                UpdateGunList();
+                foreach (Control obj in panel1.Controls)
+                {
+                    if (obj is TextBox)
+                    {
+                        obj.ResetText();
+                    }
+                }
+                UpdateInfo();
             }
-            UpdateInfo();
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            selected_gun.obj.Shoot();
-            UpdateInfo();
+            if (selectedGun is FireArm)
+            {
+                (selectedGun as FireArm).Shoot();
+                UpdateInfo();
+            }
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
-            if (selected_gun.type.GetMethod("Reload") != null)
+            if (selectedGun is FireArm)
             {
-                selected_gun.obj.Reload();
+                (selectedGun as FireArm).Reload();
                 UpdateInfo();
             }
         }
         private void button4_Click(object sender, EventArgs e)
         {
-            foreach(PropertyInfo property in selected_gun.type.GetProperties())
+            foreach(PropertyInfo property in selectedGun.GetType().GetProperties())
             {
                 string txt = panel2.Controls[GetTextBoxName(TransformPropName(property.Name), 2)].Text;
-                property.SetValue(selected_gun.obj, Convert.ChangeType(txt ,property.PropertyType));
+                property.SetValue(selectedGun, Convert.ChangeType(txt ,property.PropertyType));
             }
             UpdateInfo();
             UpdateGunList();
         }
         private void button5_Click(object sender, EventArgs e)
         {
-            int idx = serialization_list.IndexOf(selected_gun.obj); //index of object in @serialization_list
+            int idx = serialization_list.IndexOf(selectedGun); //index of object in @serialization_list
             if (idx == -1) //check if object already in @serialization_list
             {
-                serialization_list.Add(selected_gun.obj);
-                textBox1.Text += selected_gun.type.GetProperty("name").GetValue(selected_gun.obj) + Environment.NewLine;
+                serialization_list.Add(selectedGun);
+                textBox1.Text += selectedGun.GetType().GetProperty("name").GetValue(selectedGun) + Environment.NewLine;
             }
         }
         private void button6_Click(object sender, EventArgs e)
@@ -142,7 +145,7 @@ namespace Lab4
         {
             BinaryFormatter formatter = new BinaryFormatter();
             FileStream fs = new FileStream("Guns.dat", FileMode.Open);
-            dynamic[] loaded_guns = (dynamic[])formatter.Deserialize(fs);
+            Gun[] loaded_guns = (Gun[])formatter.Deserialize(fs);
             foreach (dynamic loaded_gun in loaded_guns)
             {
                 guns.Add(loaded_gun);
@@ -152,20 +155,19 @@ namespace Lab4
         }
         public void UpdateInfo()
         {
-            selected_gun.type = Type.GetType(comboBox2.SelectedItem.GetType().AssemblyQualifiedName);
-            selected_gun.obj = Convert.ChangeType(comboBox2.SelectedItem, selected_gun.type); ;
+            selectedGun = (comboBox2.SelectedItem as Gun);//Type.GetType(comboBox2.SelectedItem.GetType().AssemblyQualifiedName);
             panel2.Controls.Clear();
             offset = 20;
-            PropertyInfo[] properties = selected_gun.obj.GetType().GetProperties();
+            PropertyInfo[] properties = selectedGun.GetType().GetProperties();
             foreach (PropertyInfo property in properties)
             {
-                AddField(property, panel2, 2, property.GetValue(selected_gun.obj).ToString());
+                AddField(property, panel2, 2, property.GetValue(selectedGun).ToString());
             }
         }
         public void UpdateGunList()
         {
             comboBox2.Items.Clear();
-            foreach (dynamic gun in guns)
+            foreach (Gun gun in Gun.GunList)
             {
                 comboBox2.Items.Add(gun);
             }
@@ -226,25 +228,6 @@ namespace Lab4
             {
                 comboBox1.Items.Add(gunType);
             }
-            /*foreach (Type type in subclasses)
-            {
-                if (!type.IsAbstract && type.IsSerializable)
-                {
-                    TypeInfo new_type = new TypeInfo();
-                    new_type.type = type;
-                    ConstructorInfo[] constructors = type.GetConstructors();
-                    foreach (ConstructorInfo constructor in constructors)
-                    {
-                        ParameterInfo[] parameters = constructor.GetParameters();
-                        if (parameters.Count() > 0)
-                        {
-                            new_type.parameters = parameters;
-                            break;
-                        }
-                    }
-                    comboBox1.Items.Add(new_type);
-                }
-            }*/
             comboBox1.SelectedIndex = 0;
         }
     }

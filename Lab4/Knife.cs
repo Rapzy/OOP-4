@@ -9,5 +9,6 @@ namespace Lab4
     public class Knife:Gun
     {
         public Knife(string name, int price, int damage) : base(name, GunType.Knife, price, damage){}
+        public Knife() { }
     }
 }

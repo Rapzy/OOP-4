@@ -10,5 +10,6 @@ namespace Lab4
     {
         public Rifle(string name, int price, int damage, int clipSize, int fireRate)
             :base(name, GunType.Rifle, price, damage, clipSize, fireRate){}
+        public Rifle() { }
     }
 }
