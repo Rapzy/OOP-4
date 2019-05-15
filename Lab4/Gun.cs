@@ -79,17 +79,25 @@ namespace Lab4
         public static GunType Knife { get; } = new GunType("Knife");
         public static GunType Pistol { get; } = new GunType("Pistol");
         public static GunType Rifle { get; } = new GunType("Rifle");
-        public string Type { get; }
+        public string Value { get; }
+        public string AssemblyQualifiedName { get; set; }
         public GunType(string gunType)
         {
-            Type = gunType;
+            Value = gunType;
+            AssemblyQualifiedName = Type.GetType($"Lab4.{gunType}").AssemblyQualifiedName;
+            TypeList.Add(this);
+        }
+        public GunType(string gunType, string assemblyQualifiedName)
+        {
+            Value = gunType;
+            AssemblyQualifiedName = assemblyQualifiedName;
             TypeList.Add(this);
         }
         public bool Equals(GunType other)
         {
             if (other == null)
                 return false;
-            if (Type == other.Type)
+            if (Value == other.Value)
                 return true;
             else
                 return false;
@@ -106,7 +114,7 @@ namespace Lab4
         }
         public override int GetHashCode()
         {
-            return Type.GetHashCode();
+            return Value.GetHashCode();
         }
         public static bool operator ==(GunType gunType1, GunType other)
         {

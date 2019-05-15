@@ -29,38 +29,31 @@ namespace Lab4
         public Form1()
         {
             InitializeComponent();
-            comboBox1.DisplayMember = "Type";
+            comboBox1.DisplayMember = "Value";
             comboBox2.DisplayMember =  "Name";
             comboBox2.Format += (s, e) => {
                 e.Value = ((Gun)e.Value).Info.Name;
             };
-            Assembly a = AppDomain.CurrentDomain.GetAssemblies().SingleOrDefault(assembly => assembly.GetName().Name == "Lab4");
-            foreach (Type type in a.GetTypes())
-            {
-                if(type.IsSubclassOf(typeof(Gun)))
-                {
-                    subclasses.Add(type);
-                }
-            }
-            //Assembly asm = Assembly.LoadFrom("Nade.dll");
-            //Type[] TGuns = asm.GetTypes();
-            //subclasses.AddRange(TGuns);
             FillTypeComboBox();
         }
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             panel1.Controls.Clear();
+            object selectedItem = comboBox1.SelectedItem;
             offset = 20;
-            if (comboBox1.SelectedItem is GunType) {
-                SelectedType.Type = (comboBox1.SelectedItem as GunType);
-                Type tempType = Type.GetType("Lab4." + SelectedType.Type.Type);
-                Gun tempGun = (Gun)Activator.CreateInstance(tempType);
-                SelectedType.Properties = tempGun.Info.GetType().GetProperties();                
-                if (SelectedType.Properties != null)
-                {   
-                    foreach (PropertyInfo property in SelectedType.Properties)
+            if (selectedItem is GunType) {
+                SelectedType.Type = (selectedItem as GunType);
+                Type tempType = Type.GetType(SelectedType.Type.AssemblyQualifiedName);
+                if (tempType != null)
+                {
+                    Gun tempGun = (Gun)Activator.CreateInstance(tempType);
+                    SelectedType.Properties = tempGun.Info.GetType().GetProperties();
+                    if (SelectedType.Properties != null)
                     {
-                        AddField(property, panel1, 1);
+                        foreach (PropertyInfo property in SelectedType.Properties)
+                        {
+                            AddField(property, panel1, 1);
+                        }
                     }
                 }
             }
@@ -86,7 +79,7 @@ namespace Lab4
                     input.Add(Convert.ChangeType(textBoxes[i].Text, properties[i].PropertyType));
                 }
                 object[] args = input.ToArray();
-                Gun new_gun = (Gun)Activator.CreateInstance(Type.GetType("Lab4."+SelectedType.Type.Type), args);
+                Gun new_gun = (Gun)Activator.CreateInstance(Type.GetType(SelectedType.Type.AssemblyQualifiedName), args);
                 UpdateGunList();
                 foreach (Control obj in panel1.Controls)
                 {
@@ -156,7 +149,7 @@ namespace Lab4
         }
         public void UpdateInfo()
         {
-            selectedGun = (comboBox2.SelectedItem as Gun);//Type.GetType(comboBox2.SelectedItem.GetType().AssemblyQualifiedName);
+            selectedGun = (comboBox2.SelectedItem as Gun);
             panel2.Controls.Clear();
             offset = 20;
             PropertyInfo[] properties = selectedGun.Info.GetType().GetProperties();
@@ -180,24 +173,7 @@ namespace Lab4
             public ParameterInfo[] parameters;
             public TypeInfo() { }
         }
-        public void AddField(PropertyInfo parameter, Panel parent, int id)
-        {
-            string name = TransformPropName(parameter.Name);
-            TextBox txt = new TextBox();
-            txt.Name = GetTextBoxName(name, id);
-            txt.Height = 15;
-            txt.Width = 150;
-            txt.Top = offset;
-            txt.Text = "";
-            parent.Controls.Add(txt);
-
-            Label lbl = new Label();
-            lbl.Text = name;
-            lbl.Top = offset - 15;
-            parent.Controls.Add(lbl);
-            offset += margin;
-        }
-        public void AddField(PropertyInfo property, Panel parent, int id, string value)
+        public void AddField(PropertyInfo property, Panel parent, int id, string value="")
         {
             string name = TransformPropName(property.Name);
             TextBox txt = new TextBox();
@@ -225,11 +201,23 @@ namespace Lab4
         }
         public void FillTypeComboBox()
         {
+            comboBox1.Items.Clear();
             foreach(GunType gunType in GunType.TypeList)
             {
                 comboBox1.Items.Add(gunType);
             }
             comboBox1.SelectedIndex = 0;
+        }
+
+        private void LoadModuleToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Assembly asm = Assembly.LoadFrom("Nade.dll");
+            foreach (Type type in asm.GetTypes())
+            {
+                if (type.IsSubclassOf(Type.GetType("Lab4.Gun")))
+                    new GunType(type.Name, type.AssemblyQualifiedName);
+            }
+            FillTypeComboBox();
         }
     }
 }

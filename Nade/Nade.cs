@@ -12,8 +12,7 @@ namespace Nade
     [Serializable]
     public class Nade:Gun
     {
-
-        public Nade(string name, int price, int damage) : base(name, "Nade", price, damage) { slot = 4; }
+        public Nade(string name, int price, int damage) : base(name, "Nade", price, damage) { }
         public Nade() { }
     }
 }
